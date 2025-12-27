@@ -1,22 +1,38 @@
-/* Territory Run - Styles */
+/* Territory Run - Enhanced Styles */
 
 :root {
     --territory-color: #3b82f6;
-    --territory-opacity: 0.4;
+    --territory-opacity: 0.5;
     --path-color: #1e40af;
     --active-run-color: #10b981;
+    --gradient-start: #1e3a8a;
+    --gradient-end: #7c3aed;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
 #map {
     height: 100vh;
     width: 100%;
+    transition: filter 0.3s ease;
+}
+
+/* Smooth transitions for UI elements */
+button {
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: scale(0.98);
 }
 
 /* Auth Screen Styles */
@@ -24,49 +40,109 @@ body {
     max-width: 28rem;
     width: 100%;
     margin: 0 1rem;
+    animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .auth-card {
-    background: #1f2937;
-    border-radius: 0.5rem;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     padding: 2rem;
+    border: 1px solid rgba(59, 130, 246, 0.1);
 }
 
 .auth-input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.875rem 1rem;
     background: #374151;
-    border: 1px solid #4b5563;
-    border-radius: 0.5rem;
+    border: 2px solid #4b5563;
+    border-radius: 0.75rem;
     color: white;
     outline: none;
-    transition: border-color 0.2s;
+    transition: all 0.3s ease;
+    font-size: 1rem;
 }
 
 .auth-input:focus {
     border-color: #3b82f6;
+    background: #4b5563;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .auth-button {
     width: 100%;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
+    padding: 1rem;
+    border-radius: 0.75rem;
     font-weight: 600;
-    transition: all 0.2s;
+    transition: all 0.3s ease;
     border: none;
     cursor: pointer;
+    font-size: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
 }
 
 .auth-button:hover {
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
 }
 
-/* Loading Animation */
+.auth-button:active {
+    transform: translateY(0);
+}
+
+/* Header Enhancements */
+.bg-gray-800 {
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    backdrop-filter: blur(10px);
+}
+
+/* Stats Cards Enhancement */
+.bg-gray-700 {
+    background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.bg-gray-700:hover {
+    transform: translateY(-2px);
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+/* Number animations */
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.text-blue-400, .text-green-400, .text-purple-400 {
+    animation: countUp 0.5s ease;
+}
+
+/* Loading spinner enhancement */
 .spinner {
     animation: spin 1s linear infinite;
     border-radius: 50%;
-    border: 2px solid transparent;
+    width: 64px;
+    height: 64px;
+    border: 4px solid rgba(59, 130, 246, 0.2);
     border-top-color: #3b82f6;
 }
 
@@ -74,9 +150,121 @@ body {
     to { transform: rotate(360deg); }
 }
 
+/* Pulse animation for recording */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Territory highlight effect */
+.territory-glow {
+    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+}
+
+/* Modal backdrop blur */
+.bg-opacity-75 {
+    backdrop-filter: blur(4px);
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4b5563;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* Button glow effects */
+.bg-green-500:hover {
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.bg-red-500:hover {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.bg-yellow-500:hover {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.4);
+}
+
+.bg-blue-500:hover {
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .auth-card {
         padding: 1.5rem;
     }
+    
+    .auth-input {
+        padding: 0.75rem;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Leaderboard specific styles */
+#leaderboard-modal {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+#leaderboard-modal > div {
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Trophy medals styling */
+.text-2xl {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradient backgrounds */
+.bg-gradient-to-r {
+    background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+}
+
+/* Enhanced territory visibility on map */
+.leaflet-interactive {
+    transition: all 0.3s ease;
+}
+
+.leaflet-interactive:hover {
+    filter: brightness(1.2);
 }
