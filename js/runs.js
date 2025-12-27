@@ -68,18 +68,46 @@ async function saveRun(run) {
     }
 }
 
-// Update statistics display
+// Update statistics display with animation
 function updateStats() {
     // Calculate totals from all runs
-    totalArea = completedRuns.reduce((sum, run) => sum + parseFloat(run.area || 0), 0);
-    totalDistance = completedRuns.reduce((sum, run) => sum + parseFloat(run.distance || 0), 0);
+    const newArea = completedRuns.reduce((sum, run) => sum + parseFloat(run.area || 0), 0);
+    const newDistance = completedRuns.reduce((sum, run) => sum + parseFloat(run.distance || 0), 0);
     
-    // Update UI
-    document.getElementById('total-area').textContent = totalArea.toFixed(3);
-    document.getElementById('total-distance').textContent = totalDistance.toFixed(2);
-    document.getElementById('total-runs').textContent = completedRuns.length;
+    // Animate number changes
+    animateValue('total-area', totalArea, newArea, 500, 3);
+    animateValue('total-distance', totalDistance, newDistance, 500, 2);
+    animateValue('total-runs', completedRuns.length - 1, completedRuns.length, 300, 0);
+    
+    // Update leaderboard user area if modal is open
+    const leaderboardUserArea = document.getElementById('leaderboard-user-area');
+    if (leaderboardUserArea) {
+        leaderboardUserArea.textContent = newArea.toFixed(3);
+    }
+    
+    totalArea = newArea;
+    totalDistance = newDistance;
     
     console.log('Stats updated:', { totalArea, totalDistance, runs: completedRuns.length });
+}
+
+// Animate number counting up
+function animateValue(elementId, start, end, duration, decimals) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const range = end - start;
+    const increment = range / (duration / 16); // 60fps
+    let current = start;
+    
+    const timer = setInterval(() => {
+        current += increment;
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+            current = end;
+            clearInterval(timer);
+        }
+        element.textContent = current.toFixed(decimals);
+    }, 16);
 }
 
 // Update the runs list in sidebar
