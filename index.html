@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Territory Run - Claim Your City</title>
+    
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.js"></script>
-    <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
-        #map { height: 100vh; width: 100%; }
-    </style>
+    
+    <!-- Our Styles -->
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="bg-gray-900">
-    <!-- Auth Screen -->
+    
+    <!-- Auth Screen (Login/Signup) -->
     <div id="auth-screen" class="hidden w-full h-screen bg-gray-900 text-white flex items-center justify-center">
-        <div class="max-w-md w-full mx-4">
-            <div class="bg-gray-800 rounded-lg shadow-xl p-8">
+        <div class="auth-container">
+            <div class="auth-card">
                 <div class="text-center mb-8">
                     <svg class="w-16 h-16 mx-auto mb-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
@@ -33,14 +35,14 @@
                     <form id="login-form-element" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Email</label>
-                            <input type="email" id="login-email" required class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="email" id="login-email" required class="auth-input">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">Password</label>
-                            <input type="password" id="login-password" required class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="password" id="login-password" required class="auth-input">
                         </div>
                         <div id="login-error" class="hidden text-red-400 text-sm"></div>
-                        <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 py-3 rounded-lg font-semibold transition-colors">
+                        <button type="submit" class="auth-button bg-blue-500 hover:bg-blue-600 text-white">
                             Log In
                         </button>
                     </form>
@@ -56,15 +58,15 @@
                     <form id="signup-form-element" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium mb-2">Email</label>
-                            <input type="email" id="signup-email" required class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="email" id="signup-email" required class="auth-input">
                         </div>
                         <div>
                             <label class="block text-sm font-medium mb-2">Password</label>
-                            <input type="password" id="signup-password" required minlength="6" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500">
+                            <input type="password" id="signup-password" required minlength="6" class="auth-input">
                             <p class="text-xs text-gray-400 mt-1">At least 6 characters</p>
                         </div>
                         <div id="signup-error" class="hidden text-red-400 text-sm"></div>
-                        <button type="submit" class="w-full bg-green-500 hover:bg-green-600 py-3 rounded-lg font-semibold transition-colors">
+                        <button type="submit" class="auth-button bg-green-500 hover:bg-green-600 text-white">
                             Sign Up
                         </button>
                     </form>
@@ -79,6 +81,7 @@
 
     <!-- Main App -->
     <div id="app" class="hidden w-full h-screen bg-gray-900 text-white flex flex-col overflow-hidden">
+        
         <!-- Header -->
         <div class="bg-gray-800 p-3 md:p-4 shadow-lg flex-shrink-0">
             <div class="max-w-7xl mx-auto flex items-center justify-between">
@@ -127,13 +130,14 @@
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+            
             <!-- Map Area -->
             <div class="flex-1 relative order-2 md:order-1" style="min-height: 50vh;">
                 <div id="map" class="w-full h-full"></div>
                 
                 <div id="loading-indicator" class="hidden absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-75 z-[2000]">
                     <div class="text-center">
-                        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <div class="spinner h-16 w-16 mx-auto mb-4"></div>
                         <p class="text-lg">Loading your runs...</p>
                     </div>
                 </div>
@@ -205,417 +209,12 @@
         </div>
     </div>
 
-    <script>
-        // Initialize Supabase
-        const SUPABASE_URL = 'https://cycowcfrbinxtphgzcxl.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN5Y293Y2ZyYmlueHRwaGd6Y3hsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY4NDQwOTksImV4cCI6MjA4MjQyMDA5OX0.hgF5rR0GKjOmVyX8MedAnR1H-njT0H8IUzveI0aX87E';
-        const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-
-        let currentUser = null;
-        let map, isTracking = false, useGPS = false, gpsWatchId = null;
-        let currentPath = [], completedRuns = [];
-        let totalArea = 0, totalDistance = 0;
-        let pathLayer, territoryLayer, userMarker;
-
-        // Check authentication state
-        async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
-                showApp();
-            } else {
-                showAuth();
-            }
-        }
-
-        function showAuth() {
-            document.getElementById('auth-screen').classList.remove('hidden');
-            document.getElementById('app').classList.add('hidden');
-        }
-
-        function showApp() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden');
-            document.getElementById('user-email').textContent = currentUser.email;
-            initializeMap();
-            loadRuns();
-        }
-
-        // Auth form handlers
-        document.getElementById('show-signup').addEventListener('click', () => {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('signup-form').classList.remove('hidden');
-        });
-
-        document.getElementById('show-login').addEventListener('click', () => {
-            document.getElementById('signup-form').classList.add('hidden');
-            document.getElementById('login-form').classList.remove('hidden');
-        });
-
-        document.getElementById('login-form-element').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const errorEl = document.getElementById('login-error');
-
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) throw error;
-                currentUser = data.user;
-                showApp();
-            } catch (error) {
-                errorEl.textContent = error.message;
-                errorEl.classList.remove('hidden');
-            }
-        });
-
-        document.getElementById('signup-form-element').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const errorEl = document.getElementById('signup-error');
-
-            try {
-                const { data, error } = await supabase.auth.signUp({ email, password });
-                if (error) throw error;
-                currentUser = data.user;
-                showApp();
-            } catch (error) {
-                errorEl.textContent = error.message;
-                errorEl.classList.remove('hidden');
-            }
-        });
-
-        document.getElementById('logout-btn').addEventListener('click', async () => {
-            await supabase.auth.signOut();
-            currentUser = null;
-            if (map) map.remove();
-            map = null;
-            showAuth();
-        });
-
-        function initializeMap() {
-            if (map) return;
-            
-            const CHANDIGARH = [30.7333, 76.7794];
-            map = L.map('map').setView(CHANDIGARH, 13);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 19
-            }).addTo(map);
-
-            pathLayer = L.layerGroup().addTo(map);
-            territoryLayer = L.layerGroup().addTo(map);
-
-            map.on('click', (e) => {
-                if (isTracking && !useGPS) {
-                    currentPath.push(e.latlng);
-                    updatePath();
-                }
-            });
-        }
-
-        async function loadRuns() {
-            if (!supabase || !currentUser) return;
-            
-            document.getElementById('loading-indicator').classList.remove('hidden');
-            
-            try {
-                const { data, error } = await supabase
-                    .from('runs')
-                    .select('*')
-                    .eq('user_id', currentUser.id)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                completedRuns = data || [];
-                updateStats();
-                updateRunsList();
-                drawAllTerritories();
-            } catch (error) {
-                console.error('Error loading runs:', error);
-            } finally {
-                document.getElementById('loading-indicator').classList.add('hidden');
-            }
-        }
-
-        async function saveRun(run) {
-            if (!supabase || !currentUser) return null;
-            
-            try {
-                const { data, error } = await supabase
-                    .from('runs')
-                    .insert([{
-                        user_id: currentUser.id,
-                        path: run.path,
-                        buffered_area: run.bufferedArea,
-                        area: run.area,
-                        distance: run.distance
-                    }])
-                    .select();
-
-                if (error) throw error;
-                return data[0];
-            } catch (error) {
-                console.error('Error saving run:', error);
-                return null;
-            }
-        }
-
-        function calculateDistance(latlng1, latlng2) {
-            const R = 6371;
-            const dLat = (latlng2.lat - latlng1.lat) * Math.PI / 180;
-            const dLng = (latlng2.lng - latlng1.lng) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                      Math.cos(latlng1.lat * Math.PI / 180) * Math.cos(latlng2.lat * Math.PI / 180) *
-                      Math.sin(dLng/2) * Math.sin(dLng/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-
-        function calculatePolygonArea(latlngs) {
-            if (latlngs.length < 3) return 0;
-            const R = 6371;
-            let area = 0;
-            for (let i = 0; i < latlngs.length; i++) {
-                const j = (i + 1) % latlngs.length;
-                const lat1 = latlngs[i].lat * Math.PI / 180;
-                const lat2 = latlngs[j].lat * Math.PI / 180;
-                const lng1 = latlngs[i].lng * Math.PI / 180;
-                const lng2 = latlngs[j].lng * Math.PI / 180;
-                area += (lng2 - lng1) * (2 + Math.sin(lat1) + Math.sin(lat2));
-            }
-            return Math.abs(area * R * R / 2);
-        }
-
-        function createBufferedPolygon(latlngs, bufferMeters = 50) {
-            if (latlngs.length < 2) return null;
-            const buffered = [];
-            const metersPerDegree = 111320;
-            const buffer = bufferMeters / metersPerDegree;
-            
-            for (let i = 0; i < latlngs.length; i++) {
-                const curr = latlngs[i];
-                let perpLat = 0, perpLng = 0;
-                if (i < latlngs.length - 1) {
-                    const next = latlngs[i + 1];
-                    const dLat = next.lat - curr.lat;
-                    const dLng = next.lng - curr.lng;
-                    const len = Math.sqrt(dLat * dLat + dLng * dLng);
-                    if (len > 0) {
-                        perpLat = -dLng / len * buffer;
-                        perpLng = dLat / len * buffer;
-                    }
-                }
-                buffered.push(L.latLng(curr.lat + perpLat, curr.lng + perpLng));
-            }
-            
-            for (let i = latlngs.length - 1; i >= 0; i--) {
-                const curr = latlngs[i];
-                let perpLat = 0, perpLng = 0;
-                if (i > 0) {
-                    const prev = latlngs[i - 1];
-                    const dLat = curr.lat - prev.lat;
-                    const dLng = curr.lng - prev.lng;
-                    const len = Math.sqrt(dLat * dLat + dLng * dLng);
-                    if (len > 0) {
-                        perpLat = -dLng / len * buffer;
-                        perpLng = dLat / len * buffer;
-                    }
-                }
-                buffered.push(L.latLng(curr.lat - perpLat, curr.lng - perpLng));
-            }
-            return buffered;
-        }
-
-        function updatePath() {
-            pathLayer.clearLayers();
-            if (currentPath.length > 0) {
-                L.polyline(currentPath, { color: '#10b981', weight: 4, opacity: 0.8 }).addTo(pathLayer);
-                currentPath.forEach((latlng, idx) => {
-                    L.circleMarker(latlng, {
-                        radius: idx === 0 ? 8 : 5,
-                        fillColor: idx === 0 ? '#10b981' : '#34d399',
-                        color: '#fff',
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 1
-                    }).addTo(pathLayer);
-                });
-                
-                if (currentPath.length > 2) {
-                    const buffered = createBufferedPolygon(currentPath);
-                    if (buffered) {
-                        L.polygon(buffered, {
-                            color: '#10b981',
-                            weight: 2,
-                            fillColor: '#10b981',
-                            fillOpacity: 0.2
-                        }).addTo(pathLayer);
-                    }
-                }
-            }
-            document.getElementById('point-count').textContent = currentPath.length;
-        }
-
-        function drawAllTerritories() {
-            if (!territoryLayer) return;
-            territoryLayer.clearLayers();
-            
-            completedRuns.forEach((run, idx) => {
-                const path = run.path.map(p => L.latLng(p.lat, p.lng));
-                const bufferedArea = run.buffered_area ? run.buffered_area.map(p => L.latLng(p.lat, p.lng)) : null;
-                
-                if (bufferedArea) {
-                    L.polygon(bufferedArea, {
-                        color: '#3b82f6',
-                        weight: 2,
-                        fillColor: '#3b82f6',
-                        fillOpacity: 0.4
-                    }).addTo(territoryLayer);
-                }
-                L.polyline(path, { color: '#1e40af', weight: 3, opacity: 0.8 }).addTo(territoryLayer);
-            });
-        }
-
-        function updateStats() {
-            totalArea = completedRuns.reduce((sum, run) => sum + parseFloat(run.area), 0);
-            totalDistance = completedRuns.reduce((sum, run) => sum + parseFloat(run.distance), 0);
-            
-            document.getElementById('total-area').textContent = totalArea.toFixed(3);
-            document.getElementById('total-distance').textContent = totalDistance.toFixed(2);
-            document.getElementById('total-runs').textContent = completedRuns.length;
-        }
-
-        function updateRunsList() {
-            const listEl = document.getElementById('runs-list');
-            if (completedRuns.length === 0) {
-                listEl.innerHTML = '<p class="text-gray-400 text-sm">No runs yet. Start your first run!</p>';
-                return;
-            }
-            
-            listEl.innerHTML = completedRuns.slice(0, 5).map((run, idx) => `
-                <div class="bg-gray-700 p-3 rounded-lg text-sm">
-                    <div class="flex justify-between mb-1">
-                        <span class="text-gray-300">Run #${completedRuns.length - idx}</span>
-                        <span class="text-blue-400">${parseFloat(run.area).toFixed(3)} km²</span>
-                    </div>
-                    <div class="text-gray-400 text-xs">
-                        ${parseFloat(run.distance).toFixed(2)} km • ${run.path.length} points
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        document.getElementById('start-btn').addEventListener('click', () => {
-            const wantsGPS = confirm('Enable GPS tracking for real runs?\n\nClick OK for GPS mode (real running)\nClick Cancel for manual mode (click on map)');
-            
-            if (wantsGPS && 'geolocation' in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const userPos = [position.coords.latitude, position.coords.longitude];
-                        map.setView(userPos, 16);
-                        useGPS = true;
-                        document.getElementById('gps-indicator').classList.remove('hidden');
-                        document.getElementById('tracking-text').textContent = 'Recording GPS...';
-                        
-                        gpsWatchId = navigator.geolocation.watchPosition(
-                            (pos) => {
-                                const newPoint = L.latLng(pos.coords.latitude, pos.coords.longitude);
-                                if (currentPath.length === 0 || calculateDistance(currentPath[currentPath.length - 1], newPoint) > 0.005) {
-                                    currentPath.push(newPoint);
-                                    updatePath();
-                                }
-                                if (userMarker) {
-                                    userMarker.setLatLng(newPoint);
-                                } else {
-                                    userMarker = L.circleMarker(newPoint, {
-                                        radius: 10,
-                                        fillColor: '#10b981',
-                                        color: '#fff',
-                                        weight: 3,
-                                        fillOpacity: 1
-                                    }).addTo(map);
-                                }
-                            },
-                            (error) => alert('GPS Error: ' + error.message),
-                            { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-                        );
-                    },
-                    () => alert('GPS access denied. Using manual mode.')
-                );
-            }
-            
-            isTracking = true;
-            currentPath = [];
-            document.getElementById('start-btn').classList.add('hidden');
-            document.getElementById('stop-btn').classList.remove('hidden');
-            document.getElementById('tracking-indicator').classList.remove('hidden');
-            document.getElementById('points-counter').classList.remove('hidden');
-        });
-
-        document.getElementById('stop-btn').addEventListener('click', async () => {
-            if (currentPath.length < 3) {
-                alert('Need at least 3 points to create a territory!');
-                currentPath = [];
-                isTracking = false;
-                document.getElementById('start-btn').classList.remove('hidden');
-                document.getElementById('stop-btn').classList.add('hidden');
-                document.getElementById('tracking-indicator').classList.add('hidden');
-                document.getElementById('points-counter').classList.add('hidden');
-                return;
-            }
-            
-            let distance = 0;
-            for (let i = 1; i < currentPath.length; i++) {
-                distance += calculateDistance(currentPath[i - 1], currentPath[i]);
-            }
-            
-            const bufferedArea = createBufferedPolygon(currentPath);
-            const area = bufferedArea ? calculatePolygonArea(bufferedArea) : 0;
-            
-            const newRun = {
-                path: currentPath.map(p => ({ lat: p.lat, lng: p.lng })),
-                bufferedArea: bufferedArea ? bufferedArea.map(p => ({ lat: p.lat, lng: p.lng })) : null,
-                area,
-                distance
-            };
-            
-            const savedRun = await saveRun(newRun);
-            if (savedRun) {
-                completedRuns.unshift(savedRun);
-                console.log('Run saved successfully:', savedRun);
-            } else {
-                console.log('Run saved locally only');
-                completedRuns.unshift(newRun);
-            }
-            
-            // Force update everything
-            updateStats();
-            updateRunsList();
-            drawAllTerritories();
-            
-            // Small delay to ensure UI updates
-            setTimeout(() => {
-                updateStats();
-                updateRunsList();
-            }, 100);
-            
-            if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
-            isTracking = false;
-            useGPS = false;
-            currentPath = [];
-            pathLayer.clearLayers();
-            document.getElementById('start-btn').classList.remove('hidden');
-            document.getElementById('stop-btn').classList.add('hidden');
-            document.getElementById('tracking-indicator').classList.add('hidden');
-            document.getElementById('points-counter').classList.add('hidden');
-        });
-
-        // Initialize
-        checkAuth();
-    </script>
+    <!-- Our JavaScript Files (Order matters!) -->
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/runs.js"></script>
+    <script src="js/app.js"></script>
+    
 </body>
 </html>
