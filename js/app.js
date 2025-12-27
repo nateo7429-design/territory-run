@@ -74,6 +74,9 @@ function initializeEventListeners() {
     
     // Stop button
     document.getElementById('stop-btn').addEventListener('click', handleStopRun);
+    
+    // Leaderboard button
+    document.getElementById('leaderboard-btn').addEventListener('click', toggleLeaderboard);
 }
 
 // Main initialization function - runs when page loads
