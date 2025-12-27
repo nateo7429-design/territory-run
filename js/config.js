@@ -14,7 +14,7 @@ const CONFIG = {
     TERRITORY: {
         BUFFER_METERS: 50,
         MIN_POINTS: 3,
-        FILL_OPACITY: 0.4,
+        FILL_OPACITY: 0.5,
         STROKE_WEIGHT: 2
     },
     
