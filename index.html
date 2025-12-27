@@ -461,7 +461,9 @@
         }
 
         function drawAllTerritories() {
+            if (!territoryLayer) return;
             territoryLayer.clearLayers();
+            
             completedRuns.forEach((run, idx) => {
                 const path = run.path.map(p => L.latLng(p.lat, p.lng));
                 const bufferedArea = run.buffered_area ? run.buffered_area.map(p => L.latLng(p.lat, p.lng)) : null;
@@ -471,10 +473,10 @@
                         color: '#3b82f6',
                         weight: 2,
                         fillColor: '#3b82f6',
-                        fillOpacity: Math.max(0.15, 0.3 - idx * 0.05)
+                        fillOpacity: 0.4
                     }).addTo(territoryLayer);
                 }
-                L.polyline(path, { color: '#1e40af', weight: 3, opacity: 0.7 }).addTo(territoryLayer);
+                L.polyline(path, { color: '#1e40af', weight: 3, opacity: 0.8 }).addTo(territoryLayer);
             });
         }
 
@@ -584,11 +586,22 @@
             const savedRun = await saveRun(newRun);
             if (savedRun) {
                 completedRuns.unshift(savedRun);
+                console.log('Run saved successfully:', savedRun);
+            } else {
+                console.log('Run saved locally only');
+                completedRuns.unshift(newRun);
             }
             
+            // Force update everything
             updateStats();
             updateRunsList();
             drawAllTerritories();
+            
+            // Small delay to ensure UI updates
+            setTimeout(() => {
+                updateStats();
+                updateRunsList();
+            }, 100);
             
             if (gpsWatchId) navigator.geolocation.clearWatch(gpsWatchId);
             isTracking = false;
