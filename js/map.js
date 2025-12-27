@@ -159,20 +159,32 @@ function drawAllTerritories(runs) {
     if (!territoryLayer) return;
     territoryLayer.clearLayers();
     
-    runs.forEach((run) => {
+    runs.forEach((run, idx) => {
         const path = run.path.map(p => L.latLng(p.lat, p.lng));
         const bufferedArea = run.buffered_area ? 
             run.buffered_area.map(p => L.latLng(p.lat, p.lng)) : null;
         
-        // Draw the territory area
+        // Draw the territory area with enhanced visibility
         if (bufferedArea) {
             L.polygon(bufferedArea, {
                 color: '#3b82f6',
-                weight: CONFIG.TERRITORY.STROKE_WEIGHT,
+                weight: 3,
                 fillColor: '#3b82f6',
-                fillOpacity: CONFIG.TERRITORY.FILL_OPACITY
+                fillOpacity: 0.5, // Increased from 0.4
+                className: 'territory-glow'
             }).addTo(territoryLayer);
         }
+        
+        // Draw the path line with glow effect
+        L.polyline(path, { 
+            color: '#1e40af', 
+            weight: 4, // Increased from 3
+            opacity: 0.9, // Increased from 0.8
+            lineCap: 'round',
+            lineJoin: 'round'
+        }).addTo(territoryLayer);
+    });
+}
         
         // Draw the path line
         L.polyline(path, { 
